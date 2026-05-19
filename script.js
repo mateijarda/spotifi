@@ -187,9 +187,23 @@ let playerState = {
 // Tracking links storage
 let trackingLinks = [];
 
+// Beat Maker State
+let beatMakerState = {
+    bpm: 120,
+    isPlaying: false,
+    isRecording: false,
+    currentInstrument: 'drums',
+    freeSessionsLeft: 2,
+    sessionStartTime: null,
+    sessionActive: false,
+    sequencer: Array(16).fill(false),
+    drumSounds: ['kick', 'snare', 'hihat', 'tom', 'clap', 'perc', 'cowbell', 'cymbal']
+};
+
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     initializePage();
+    initializeBeatMaker();
 });
 
 function initializePage() {
@@ -378,7 +392,7 @@ function setupEventListeners() {
         claimOfferBtn.addEventListener('click', claimOffer);
     }
 
-    // Simulate progress bar movement when playing
+    // Produce navigation
     setInterval(() => {
         if (playerState.isPlaying && playerState.currentSong) {
             playerState.currentTime += 0.016; // Smoother increment (16ms = ~60fps)
@@ -603,10 +617,305 @@ document.querySelectorAll('.nav-item').forEach(item => {
     });
 });
 
-// Claim offer function - redirects to premium offer page
-function claimOffer() {
-    window.location.href = 'premium-offer.html';
+// Initialize Beat Maker
+function initializeBeatMaker() {
+    createSequencerGrid();
+    setupBeatMakerEventListeners();
+    loadBeatMakerState();
 }
+
+// Create sequencer grid
+function createSequencerGrid() {
+    const sequencer = document.getElementById('sequencer');
+    sequencer.innerHTML = '';
+    
+    for (let i = 0; i < 16; i++) {
+        const step = document.createElement('div');
+        step.className = 'step';
+        step.dataset.index = i;
+        step.addEventListener('click', () => toggleStep(i));
+        sequencer.appendChild(step);
+    }
+}
+
+// Toggle sequencer step
+function toggleStep(index) {
+    beatMakerState.sequencer[index] = !beatMakerState.sequencer[index];
+    updateSequencerDisplay();
+}
+
+// Update sequencer display
+function updateSequencerDisplay() {
+    const steps = document.querySelectorAll('.step');
+    steps.forEach((step, index) => {
+        if (beatMakerState.sequencer[index]) {
+            step.classList.add('active');
+        } else {
+            step.classList.remove('active');
+        }
+    });
+}
+
+// Setup beat maker event listeners
+function setupBeatMakerEventListeners() {
+    // Produce nav button
+    const produceNavBtn = document.getElementById('produceNavBtn');
+    if (produceNavBtn) {
+        produceNavBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            toggleProducerPanel();
+        });
+    }
+
+    // Close producer button
+    const closeProducerBtn = document.getElementById('closeProducerBtn');
+    if (closeProducerBtn) {
+        closeProducerBtn.addEventListener('click', toggleProducerPanel);
+    }
+
+    // BPM controls
+    document.getElementById('bpmUp').addEventListener('click', () => {
+        beatMakerState.bpm = Math.min(beatMakerState.bpm + 1, 200);
+        document.getElementById('bpmInput').value = beatMakerState.bpm;
+    });
+
+    document.getElementById('bpmDown').addEventListener('click', () => {
+        beatMakerState.bpm = Math.max(beatMakerState.bpm - 1, 60);
+        document.getElementById('bpmInput').value = beatMakerState.bpm;
+    });
+
+    document.getElementById('bpmInput').addEventListener('change', (e) => {
+        beatMakerState.bpm = Math.max(60, Math.min(200, parseInt(e.target.value) || 120));
+        e.target.value = beatMakerState.bpm;
+    });
+
+    // Instrument select
+    document.getElementById('instrumentSelect').addEventListener('change', (e) => {
+        beatMakerState.currentInstrument = e.target.value;
+    });
+
+    // Drum pads
+    document.querySelectorAll('.drum-pad').forEach((pad, index) => {
+        pad.addEventListener('click', () => playDrumSound(index));
+        pad.addEventListener('mousedown', () => pad.classList.add('active'));
+        pad.addEventListener('mouseup', () => pad.classList.remove('active'));
+        pad.addEventListener('mouseleave', () => pad.classList.remove('active'));
+    });
+
+    // Playback controls
+    document.getElementById('playProducerBtn').addEventListener('click', playSequence);
+    document.getElementById('stopProducerBtn').addEventListener('click', stopSequence);
+    document.getElementById('recordProducerBtn').addEventListener('click', toggleRecording);
+    document.getElementById('clearProducerBtn').addEventListener('click', clearSequence);
+
+    // Upgrade button
+    document.getElementById('upgradeBtnProducer').addEventListener('click', upgradeProducer);
+}
+
+// Toggle producer panel
+function toggleProducerPanel() {
+    const panel = document.getElementById('producerPanel');
+    panel.classList.toggle('hidden');
+    
+    if (!panel.classList.contains('hidden')) {
+        if (beatMakerState.freeSessionsLeft > 0) {
+            startBeatMakerSession();
+        } else {
+            showPaywall();
+        }
+    }
+}
+
+// Start beat maker session
+function startBeatMakerSession() {
+    if (!beatMakerState.sessionActive && beatMakerState.freeSessionsLeft > 0) {
+        beatMakerState.sessionActive = true;
+        beatMakerState.sessionStartTime = Date.now();
+        updateSessionInfo();
+        
+        // Update timer every second
+        const timerInterval = setInterval(() => {
+            if (beatMakerState.sessionActive) {
+                updateSessionInfo();
+                
+                // 2 hour limit (7200 seconds)
+                const elapsed = (Date.now() - beatMakerState.sessionStartTime) / 1000;
+                if (elapsed > 7200) {
+                    beatMakerState.sessionActive = false;
+                    clearInterval(timerInterval);
+                    beatMakerState.freeSessionsLeft--;
+                    endSession();
+                }
+            } else {
+                clearInterval(timerInterval);
+            }
+        }, 1000);
+    }
+}
+
+// Update session info
+function updateSessionInfo() {
+    if (!beatMakerState.sessionStartTime) return;
+    
+    const elapsed = Math.floor((Date.now() - beatMakerState.sessionStartTime) / 1000);
+    const minutes = Math.floor(elapsed / 60);
+    const seconds = elapsed % 60;
+    
+    document.getElementById('sessionTimer').textContent = 
+        `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    document.getElementById('freeSessionsLeft').textContent = beatMakerState.freeSessionsLeft;
+}
+
+// End session
+function endSession() {
+    beatMakerState.sessionActive = false;
+    stopSequence();
+    
+    if (beatMakerState.freeSessionsLeft <= 0) {
+        showPaywall();
+    }
+}
+
+// Show paywall
+function showPaywall() {
+    const paywall = document.getElementById('paywall');
+    const controls = document.querySelectorAll('.playback-controls button, .drum-pad, .sequencer, #bpmInput, #instrumentSelect');
+    
+    paywall.classList.remove('hidden');
+    controls.forEach(ctrl => ctrl.disabled = true);
+}
+
+// Play drum sound
+function playDrumSound(padIndex) {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    // Different sounds based on pad
+    const sounds = [
+        { freq: 80, type: 'sine' },      // Kick
+        { freq: 200, type: 'triangle' }, // Snare
+        { freq: 800, type: 'square' },   // Hi-Hat
+        { freq: 150, type: 'sine' },     // Tom
+        { freq: 250, type: 'triangle' }, // Clap
+        { freq: 300, type: 'sine' },     // Perc
+        { freq: 540, type: 'sine' },     // Cowbell
+        { freq: 1200, type: 'square' }   // Cymbal
+    ];
+    
+    oscillator.frequency.value = sounds[padIndex].freq;
+    oscillator.type = sounds[padIndex].type;
+    
+    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.3);
+    
+    // Visual feedback
+    const pads = document.querySelectorAll('.drum-pad');
+    if (pads[padIndex]) {
+        pads[padIndex].classList.add('active');
+        setTimeout(() => pads[padIndex].classList.remove('active'), 100);
+    }
+}
+
+// Play sequence
+function playSequence() {
+    if (beatMakerState.sessionActive || beatMakerState.freeSessionsLeft > 0) {
+        beatMakerState.isPlaying = !beatMakerState.isPlaying;
+        const btn = document.getElementById('playProducerBtn');
+        
+        if (beatMakerState.isPlaying) {
+            btn.style.background = '#ff6b6b';
+            btn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+            playLoop();
+        } else {
+            btn.style.background = 'var(--primary-dark)';
+            btn.innerHTML = '<i class="fas fa-play"></i> Play';
+        }
+    }
+}
+
+// Play loop
+function playLoop() {
+    let step = 0;
+    
+    const playStep = () => {
+        if (!beatMakerState.isPlaying) return;
+        
+        // Play sounds for active steps
+        if (beatMakerState.sequencer[step]) {
+            for (let i = 0; i < 8; i++) {
+                if (beatMakerState.sequencer[step]) {
+                    playDrumSound(i);
+                }
+            }
+        }
+        
+        // Move to next step
+        step = (step + 1) % 16;
+        const stepDuration = (60 / beatMakerState.bpm) * 250; // 16th notes
+        
+        setTimeout(playStep, stepDuration);
+    };
+    
+    playStep();
+}
+
+// Stop sequence
+function stopSequence() {
+    beatMakerState.isPlaying = false;
+    const btn = document.getElementById('playProducerBtn');
+    btn.style.background = 'var(--primary-dark)';
+    btn.innerHTML = '<i class="fas fa-play"></i> Play';
+}
+
+// Toggle recording
+function toggleRecording() {
+    beatMakerState.isRecording = !beatMakerState.isRecording;
+    const btn = document.getElementById('recordProducerBtn');
+    
+    if (beatMakerState.isRecording) {
+        btn.classList.add('recording');
+    } else {
+        btn.classList.remove('recording');
+    }
+}
+
+// Clear sequence
+function clearSequence() {
+    beatMakerState.sequencer = Array(16).fill(false);
+    updateSequencerDisplay();
+}
+
+// Save beat maker state
+function saveBeatMakerState() {
+    localStorage.setItem('beatMakerState', JSON.stringify(beatMakerState));
+}
+
+// Load beat maker state
+function loadBeatMakerState() {
+    const saved = localStorage.getItem('beatMakerState');
+    if (saved) {
+        const state = JSON.parse(saved);
+        beatMakerState.freeSessionsLeft = state.freeSessionsLeft || 2;
+        beatMakerState.sequencer = state.sequencer || Array(16).fill(false);
+    }
+    
+    document.getElementById('freeSessionsLeft').textContent = beatMakerState.freeSessionsLeft;
+    updateSequencerDisplay();
+}
+
+// Upgrade producer
+function upgradeProducer() {
+    alert('Upgrade functionality would connect to payment system (Stripe, PayPal, etc.)');
+    // In a real app, this would open a payment modal
+}
+
 
 // Playlist items click handler
 document.addEventListener('click', (e) => {
