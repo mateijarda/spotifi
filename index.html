@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotifi - Music Streaming</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-music"></i>
+                <span>Spotifi</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-search"></i>
+                    <span>Search</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-compact-disc"></i>
+                    <span>Your Library</span>
+                </a>
+            </nav>
+            <div class="playlists-section">
+                <div class="playlists-header">
+                    <h3>Playlists</h3>
+                    <button id="createPlaylistBtn" class="add-btn"><i class="fas fa-plus"></i></button>
+                </div>
+                <div id="playlistsList" class="playlists-list">
+                    <div class="playlist-item">Liked Songs</div>
+                    <div class="playlist-item">Discover Weekly</div>
+                    <div class="playlist-item">Release Radar</div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <button class="profile-btn">
+                    <i class="fas fa-user-circle"></i>
+                    <span>Profile</span>
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search songs, artists, albums...">
+                </div>
+                <div class="user-menu">
+                    <button class="upgrade-btn">Upgrade to Premium</button>
+                    <button class="user-btn">
+                        <i class="fas fa-user"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content Area -->
+            <div class="content">
+                <!-- Featured Section -->
+                <section class="featured-section">
+                    <h2>Featured</h2>
+                    <div class="featured-grid">
+                        <div class="featured-card">
+                            <div class="featured-image" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                <i class="fas fa-fire"></i>
+                            </div>
+                            <h3>Trending Now</h3>
+                            <p>The hottest tracks right now</p>
+                        </div>
+                        <div class="featured-card">
+                            <div class="featured-image" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                                <i class="fas fa-heart"></i>
+                            </div>
+                            <h3>Love Hits</h3>
+                            <p>Your favorite songs</p>
+                        </div>
+                        <div class="featured-card">
+                            <div class="featured-image" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                                <i class="fas fa-headphones"></i>
+                            </div>
+                            <h3>New Releases</h3>
+                            <p>Fresh from your favorite artists</p>
+                        </div>
+                        <div class="featured-card">
+                            <div class="featured-image" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3>Top Charts</h3>
+                            <p>Global chart toppers</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recently Played Section -->
+                <section class="recently-played-section">
+                    <div class="section-header">
+                        <h2>Recently Played</h2>
+                        <a href="#" class="see-all">See all</a>
+                    </div>
+                    <div id="recentlyPlayedList" class="songs-list">
+                        <!-- Songs will be added here dynamically -->
+                    </div>
+                </section>
+
+                <!-- Popular Tracks Section -->
+                <section class="popular-tracks-section">
+                    <div class="section-header">
+                        <h2>Popular Right Now</h2>
+                        <a href="#" class="see-all">See all</a>
+                    </div>
+                    <div id="popularTracksList" class="songs-list">
+                        <!-- Songs will be added here dynamically -->
+                    </div>
+                </section>
+
+                <!-- Special Offer Section with Iframe -->
+                <section class="offer-section">
+                    <div class="offer-card">
+                        <div class="offer-header">
+                            <i class="fas fa-star"></i>
+                            <h2>⭐ Premium Offer</h2>
+                        </div>
+                        <p class="offer-description">Get 1 Month FREE Premium Access! No credit card needed for trial.</p>
+                        <button id="claimOfferBtn" class="claim-offer-btn">Get Free Premium For 1 Month</button>
+                        <p class="offer-terms">Limited time • Cancel anytime • Terms apply</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- Music Player at Bottom -->
+    <div class="player">
+        <div class="player-track-info">
+            <div class="player-track-image">
+                <i class="fas fa-music"></i>
+            </div>
+            <div class="player-track-details">
+                <div class="track-name">No song playing</div>
+                <div class="artist-name">Select a song to play</div>
+            </div>
+            <div class="player-controls-left">
+                <button class="control-btn">
+                    <i class="fas fa-heart"></i>
+                </button>
+                <button class="control-btn">
+                    <i class="fas fa-ellipsis-h"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="player-controls">
+            <div class="player-buttons">
+                <button class="control-btn">
+                    <i class="fas fa-random"></i>
+                </button>
+                <button class="control-btn">
+                    <i class="fas fa-step-backward"></i>
+                </button>
+                <button id="playBtn" class="play-btn">
+                    <i class="fas fa-play"></i>
+                </button>
+                <button class="control-btn">
+                    <i class="fas fa-step-forward"></i>
+                </button>
+                <button class="control-btn">
+                    <i class="fas fa-redo"></i>
+                </button>
+            </div>
+            <div class="progress-bar">
+                <span class="time">0:00</span>
+                <div class="progress-slider">
+                    <div class="progress"></div>
+                    <input type="range" id="progressBar" min="0" max="100" value="0">
+                </div>
+                <span class="duration">0:00</span>
+            </div>
+        </div>
+
+        <div class="player-extra-controls">
+            <button class="control-btn">
+                <i class="fas fa-list"></i>
+            </button>
+            <button class="control-btn">
+                <i class="fas fa-desktop"></i>
+            </button>
+            <div class="volume-control">
+                <i class="fas fa-volume-up"></i>
+                <input type="range" id="volumeSlider" min="0" max="100" value="70">
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Creating Playlists -->
+    <div id="playlistModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Create Playlist</h2>
+            <input type="text" id="playlistName" placeholder="Playlist name" autofocus>
+            <textarea id="playlistDesc" placeholder="Add an optional description"></textarea>
+            <button id="confirmPlaylistBtn" class="create-btn">Create</button>
+        </div>
+    </div>
+
+    <!-- Modal for Adding Links -->
+    <div id="linkModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Add Tracking Link</h2>
+            <input type="text" id="trackingLink" placeholder="Paste your link here">
+            <input type="text" id="linkLabel" placeholder="Link label (optional)">
+            <button id="confirmLinkBtn" class="create-btn">Add Link</button>
+            <div id="addedLinks" class="added-links">
+                <h3>Active Links</h3>
+                <div id="linksList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer with Link Management -->
+    <div class="footer-links">
+        <button id="manageLinkBtn" class="manage-links-btn">
+            <i class="fas fa-link"></i> Manage Links
+        </button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
