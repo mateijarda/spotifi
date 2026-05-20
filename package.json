@@ -1,17 +1,19 @@
 {
-  "name": "spotifi",
+  "name": "4tune",
   "version": "1.0.0",
-  "description": "A 1:1 Spotify clone web application with link management capabilities",
+  "description": "4tune is a web-based music production studio for trap producers and DJs.",
   "main": "index.html",
   "scripts": {
     "start": "python3 -m http.server 8000",
     "dev": "python3 -m http.server 8000"
   },
   "keywords": [
-    "spotify",
-    "music",
-    "streaming",
-    "web"
+    "4tune",
+    "beat",
+    "production",
+    "trap",
+    "dj",
+    "studio"
   ],
   "author": "",
   "license": "MIT",

