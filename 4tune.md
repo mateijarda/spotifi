@@ -5,10 +5,10 @@
 ## Features
 
 - Multi-track layer mixer with drum, bass, synth, vocal and FX lanes
-- 16-step sequencer for each track
-- Live pad grid for voice stacking and layered performance
-- Reverb, delay, filter and distortion effects rack
-- Trap-ready sample kits and presets
+- Real 16-step square sequencer grid for each studio track
+- Live sample pad grid and sample library for beats and vocal chops
+- Reverb, delay, filter and distortion effects rack with master bus
+- Session and preset management in dedicated Presets section
 - Save sessions locally and continue production later
 
 ## Getting Started

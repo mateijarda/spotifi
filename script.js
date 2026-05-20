@@ -7,11 +7,16 @@ const state = {
     isPlaying: false,
     stepIndex: 0,
     metronome: true,
+    masterVolume: 0.92,
+    masterPan: 0,
+    savedSessions: [],
     tracks: [
-        { id: 1, name: 'Drums', instrument: 'drums', active: true, volume: 0.95, pattern: Array(16).fill(false), color: '#3b82f6' },
-        { id: 2, name: '808 Bass', instrument: 'bass', active: true, volume: 0.9, pattern: Array(16).fill(false), color: '#8b5cf6' },
-        { id: 3, name: 'Synth Lead', instrument: 'synth', active: true, volume: 0.75, pattern: Array(16).fill(false), color: '#0ea5e9' },
-        { id: 4, name: 'Vocal Chop', instrument: 'vocal', active: true, volume: 0.65, pattern: Array(16).fill(false), color: '#ec4899' }
+        { id: 1, name: 'Kick', instrument: 'drums', active: true, volume: 0.95, pattern: Array(16).fill(false), color: '#3b82f6' },
+        { id: 2, name: 'Snare', instrument: 'drums', active: true, volume: 0.92, pattern: Array(16).fill(false), color: '#ef4444' },
+        { id: 3, name: 'Hi-Hat', instrument: 'drums', active: true, volume: 0.88, pattern: Array(16).fill(false), color: '#fbbf24' },
+        { id: 4, name: '808 Bass', instrument: 'bass', active: true, volume: 0.9, pattern: Array(16).fill(false), color: '#8b5cf6' },
+        { id: 5, name: 'Synth Lead', instrument: 'synth', active: true, volume: 0.75, pattern: Array(16).fill(false), color: '#0ea5e9' },
+        { id: 6, name: 'Vocal Chop', instrument: 'vocal', active: true, volume: 0.65, pattern: Array(16).fill(false), color: '#ec4899' }
     ],
     effects: {
         delay: 0.18,
@@ -74,7 +79,9 @@ function createEffectsChain() {
 
     dryGain.gain.value = 1;
     wetGain.gain.value = state.effects.reverb;
-    masterGain.gain.value = 0.92;
+    masterGain.gain.value = state.masterVolume;
+
+    const panner = audioContext.createStereoPanner();
 
     filter.connect(distortion);
     distortion.connect(dryGain);
@@ -84,9 +91,10 @@ function createEffectsChain() {
     feedback.connect(delay);
     delay.connect(masterGain);
     dryGain.connect(masterGain);
-    masterGain.connect(audioContext.destination);
+    masterGain.connect(panner);
+    panner.connect(audioContext.destination);
 
-    return { filter, delay, feedback, distortion, dryGain, wetGain, masterGain };
+    return { filter, delay, feedback, distortion, dryGain, wetGain, masterGain, panner };
 }
 
 function makeDistortionCurve(amount) {
@@ -106,8 +114,10 @@ function initializeUI() {
     renderPadGrid();
     renderSequencer();
     renderSampleLibrary();
+    renderSavedSessions();
     updateDashboard();
     updateEffectsUI();
+    updateMasterUI();
 }
 
 function bindUIEvents() {
@@ -121,7 +131,29 @@ function bindUIEvents() {
     document.getElementById('clearBtn').addEventListener('click', clearSequencer);
     document.getElementById('addLayerBtn').addEventListener('click', addLayer);
     document.getElementById('saveSessionBtn').addEventListener('click', saveSession);
+    document.getElementById('savePresetBtn').addEventListener('click', saveSession);
+    document.getElementById('clearSessionBtn').addEventListener('click', resetSession);
     document.getElementById('newSessionBtn').addEventListener('click', resetSession);
+    document.getElementById('masterVolumeSlider').addEventListener('input', (event) => {
+        state.masterVolume = Number(event.target.value);
+        effectsChain.masterGain.gain.setValueAtTime(state.masterVolume, audioContext.currentTime);
+        updateMasterUI();
+    });
+    document.getElementById('masterPanSlider').addEventListener('input', (event) => {
+        state.masterPan = Number(event.target.value);
+        effectsChain.panner.pan.setValueAtTime(state.masterPan, audioContext.currentTime);
+        updateMasterUI();
+    });
+    document.querySelectorAll('.nav-item, .section-btn').forEach((item) => {
+        item.addEventListener('click', (event) => {
+            event.preventDefault();
+            const section = item.dataset.section;
+            if (!section) return;
+            showSection(section);
+            document.querySelectorAll('.nav-item, .section-btn').forEach((button) => button.classList.remove('active'));
+            item.classList.add('active');
+        });
+    });
     document.getElementById('delaySlider').addEventListener('input', (event) => {
         state.effects.delay = Number(event.target.value);
         effectsChain.delay.delayTime.setValueAtTime(state.effects.delay, audioContext.currentTime);
@@ -152,17 +184,27 @@ function bindUIEvents() {
 
 function initializeSession() {
     const saved = localStorage.getItem('fourTuneSession');
+    const savedList = localStorage.getItem('fourTuneSavedSessions');
     if (saved) {
         const loaded = JSON.parse(saved);
         state.bpm = loaded.bpm || state.bpm;
         state.tracks = loaded.tracks || state.tracks;
         state.effects = loaded.effects || state.effects;
         state.metronome = loaded.metronome ?? state.metronome;
-        document.getElementById('bpmInput').value = state.bpm;
-        renderTrackRows();
-        renderSequencer();
-        updateEffectsUI();
     }
+    if (savedList) {
+        state.savedSessions = JSON.parse(savedList);
+    }
+    document.getElementById('bpmInput').value = state.bpm;
+    document.getElementById('masterVolumeSlider').value = state.masterVolume;
+    document.getElementById('masterPanSlider').value = state.masterPan;
+    effectsChain.masterGain.gain.setValueAtTime(state.masterVolume, audioContext.currentTime);
+    effectsChain.panner.pan.setValueAtTime(state.masterPan, audioContext.currentTime);
+    renderTrackRows();
+    renderSequencer();
+    updateEffectsUI();
+    updateMasterUI();
+    renderSavedSessions();
 }
 
 function renderTrackRows() {
@@ -327,6 +369,13 @@ function updateDashboard() {
     document.getElementById('effectCount').textContent = `${Object.keys(state.effects).length} active`;
 }
 
+function updateMasterUI() {
+    document.getElementById('masterVolumeLabel').textContent = `${Math.round(state.masterVolume * 100)}%`;
+    document.getElementById('masterPanLabel').textContent = state.masterPan === 0 ? 'Center' : state.masterPan > 0 ? `R${Math.round(state.masterPan * 100)}%` : `L${Math.round(Math.abs(state.masterPan) * 100)}%`;
+    document.getElementById('busGainLabel').textContent = state.masterVolume.toFixed(2);
+    document.getElementById('busWetDryLabel').textContent = `${Math.round(state.effects.reverb * 100)}%`;
+}
+
 function updateEffectsUI() {
     document.getElementById('delayValue').textContent = `${state.effects.delay.toFixed(2)}s`;
     document.getElementById('reverbValue').textContent = `${Math.round(state.effects.reverb * 100)}%`;
@@ -353,7 +402,10 @@ function instrumentLabel(instrument, id) {
 }
 
 function startPlayback() {
-    if (state.isPlaying) return;
+    if (state.isPlaying) {
+        stopPlayback();
+        return;
+    }
     state.isPlaying = true;
     const playBtn = document.getElementById('playBtn');
     playBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
@@ -466,6 +518,77 @@ function triggerMetronomeClick() {
     oscillator.stop(audioContext.currentTime + 0.06);
 }
 
+function showSection(sectionId) {
+    document.querySelectorAll('.tab-section').forEach((section) => {
+        section.classList.toggle('active', section.id === sectionId);
+    });
+}
+
+function renderSavedSessions() {
+    const container = document.getElementById('savedSessions');
+    if (!container) return;
+    container.innerHTML = '';
+
+    if (state.savedSessions.length === 0) {
+        container.innerHTML = '<div class="saved-empty">No saved sessions yet. Use Save Session to store your beat setup.</div>';
+        return;
+    }
+
+    state.savedSessions.forEach((session) => {
+        const card = document.createElement('div');
+        card.className = 'saved-session-card';
+        card.innerHTML = `
+            <div>
+                <strong>${session.name}</strong>
+                <small>${session.createdAt}</small>
+            </div>
+            <div class="session-controls">
+                <button type="button" data-load="${session.id}">Load</button>
+                <button type="button" data-delete="${session.id}">Delete</button>
+            </div>
+        `;
+
+        card.querySelector('[data-load]').addEventListener('click', () => loadSession(session.id));
+        card.querySelector('[data-delete]').addEventListener('click', () => deleteSession(session.id));
+        container.appendChild(card);
+    });
+}
+
+function loadSession(id) {
+    const session = state.savedSessions.find((item) => item.id === id);
+    if (!session) return;
+    state.bpm = session.bpm;
+    state.tracks = session.tracks.map((track) => ({ ...track }));
+    state.effects = { ...session.effects };
+    state.metronome = session.metronome;
+    state.masterVolume = session.masterVolume;
+    state.masterPan = session.masterPan;
+    document.getElementById('bpmInput').value = state.bpm;
+    document.getElementById('delaySlider').value = state.effects.delay;
+    document.getElementById('reverbSlider').value = state.effects.reverb;
+    document.getElementById('filterSlider').value = state.effects.filter;
+    document.getElementById('distortionSlider').value = state.effects.distortion;
+    document.getElementById('masterVolumeSlider').value = state.masterVolume;
+    document.getElementById('masterPanSlider').value = state.masterPan;
+    effectsChain.delay.delayTime.setValueAtTime(state.effects.delay, audioContext.currentTime);
+    effectsChain.wetGain.gain.setValueAtTime(state.effects.reverb, audioContext.currentTime);
+    effectsChain.filter.frequency.setValueAtTime(state.effects.filter, audioContext.currentTime);
+    effectsChain.distortion.curve = makeDistortionCurve(state.effects.distortion * 100);
+    effectsChain.masterGain.gain.setValueAtTime(state.masterVolume, audioContext.currentTime);
+    effectsChain.panner.pan.setValueAtTime(state.masterPan, audioContext.currentTime);
+    renderTrackRows();
+    renderSequencer();
+    updateDashboard();
+    updateEffectsUI();
+    updateMasterUI();
+}
+
+function deleteSession(id) {
+    state.savedSessions = state.savedSessions.filter((session) => session.id !== id);
+    localStorage.setItem('fourTuneSavedSessions', JSON.stringify(state.savedSessions));
+    renderSavedSessions();
+}
+
 function toggleMetronome() {
     state.metronome = !state.metronome;
     document.getElementById('toggleMetronomeBtn').classList.toggle('active', state.metronome);
@@ -496,14 +619,24 @@ function addLayer() {
 }
 
 function saveSession() {
-    const payload = {
+    const name = prompt('Name this session', `4tune Session ${new Date().toLocaleTimeString()}`);
+    if (!name) return;
+    const session = {
+        id: Date.now(),
+        name,
+        createdAt: new Date().toLocaleString(),
         bpm: state.bpm,
         tracks: state.tracks,
         effects: state.effects,
-        metronome: state.metronome
+        metronome: state.metronome,
+        masterVolume: state.masterVolume,
+        masterPan: state.masterPan
     };
-    localStorage.setItem('fourTuneSession', JSON.stringify(payload));
-    alert('4tune session saved. Ready for your next production pass.');
+    state.savedSessions.unshift(session);
+    localStorage.setItem('fourTuneSavedSessions', JSON.stringify(state.savedSessions));
+    localStorage.setItem('fourTuneSession', JSON.stringify(session));
+    renderSavedSessions();
+    alert(`Saved session: ${name}`);
 }
 
 function resetSession() {
@@ -515,11 +648,15 @@ function resetSession() {
         });
         state.bpm = 140;
         state.metronome = true;
+        state.masterVolume = 0.92;
+        state.masterPan = 0;
         document.getElementById('bpmInput').value = state.bpm;
         document.getElementById('delaySlider').value = 0.18;
         document.getElementById('reverbSlider').value = 0.22;
         document.getElementById('filterSlider').value = 1400;
         document.getElementById('distortionSlider').value = 0.05;
+        document.getElementById('masterVolumeSlider').value = state.masterVolume;
+        document.getElementById('masterPanSlider').value = state.masterPan;
         state.effects = { delay: 0.18, reverb: 0.22, filter: 1400, distortion: 0.05 };
         effectsChain.delay.delayTime.setValueAtTime(state.effects.delay, audioContext.currentTime);
         effectsChain.wetGain.gain.setValueAtTime(state.effects.reverb, audioContext.currentTime);

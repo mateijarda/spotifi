@@ -154,6 +154,131 @@ button:hover {
     margin-bottom: 32px;
 }
 
+.workspace-navigation {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+}
+
+.section-btn {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.section-btn.active,
+.section-btn:hover {
+    background: rgba(35, 209, 140, 0.18);
+    color: var(--text);
+}
+
+.workspace-content {
+    display: grid;
+    gap: 24px;
+}
+
+.tab-section {
+    display: none;
+}
+
+.tab-section.active {
+    display: block;
+}
+
+.preset-actions {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+
+.mixer-main {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 24px;
+}
+
+.mixer-control {
+    display: grid;
+    gap: 10px;
+}
+
+.mixer-control label {
+    color: var(--muted);
+}
+
+.bus-controls {
+    display: grid;
+    gap: 14px;
+    margin-top: 18px;
+}
+
+.bus-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.bus-notes p {
+    color: var(--muted);
+    margin-top: 18px;
+    line-height: 1.7;
+}
+
+.saved-sessions {
+    display: grid;
+    gap: 16px;
+    margin-top: 20px;
+}
+
+.saved-session-card {
+    display: grid;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.session-controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.session-controls button {
+    flex: 1;
+    border: none;
+    border-radius: 16px;
+    padding: 12px;
+    background: rgba(35, 209, 140, 0.14);
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.session-controls button:hover {
+    background: rgba(35, 209, 140, 0.22);
+}
+
+.saved-empty {
+    color: var(--muted);
+    padding: 18px;
+    border-radius: 20px;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+}
+
 .subtitle {
     text-transform: uppercase;
     letter-spacing: 0.18em;

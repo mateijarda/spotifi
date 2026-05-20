@@ -15,11 +15,11 @@
                 <span>4tune</span>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="nav-item active"><i class="fas fa-home"></i><span>Dashboard</span></a>
-                <a href="#" class="nav-item"><i class="fas fa-music"></i><span>Studio</span></a>
-                <a href="#" class="nav-item"><i class="fas fa-th-large"></i><span>Samples</span></a>
-                <a href="#" class="nav-item"><i class="fas fa-sliders-h"></i><span>Effects</span></a>
-                <a href="#" class="nav-item"><i class="fas fa-compact-disc"></i><span>Presets</span></a>
+                <a href="#" class="nav-item active" data-section="dashboardSection"><i class="fas fa-home"></i><span>Dashboard</span></a>
+                <a href="#" class="nav-item" data-section="studioSection"><i class="fas fa-music"></i><span>Studio</span></a>
+                <a href="#" class="nav-item" data-section="samplesSection"><i class="fas fa-th-large"></i><span>Samples</span></a>
+                <a href="#" class="nav-item" data-section="effectsSection"><i class="fas fa-sliders-h"></i><span>Effects</span></a>
+                <a href="#" class="nav-item" data-section="presetsSection"><i class="fas fa-compact-disc"></i><span>Presets</span></a>
             </nav>
             <div class="sidebar-footer">
                 <div class="project-info">
@@ -48,108 +48,166 @@
                 </div>
             </header>
 
-            <section class="dashboard-grid">
-                <div class="dash-card">
-                    <span>Tempo</span>
-                    <strong id="tempoValue">140 BPM</strong>
-                </div>
-                <div class="dash-card">
-                    <span>Layers</span>
-                    <strong id="layerCount">4</strong>
-                </div>
-                <div class="dash-card">
-                    <span>Effects</span>
-                    <strong id="effectCount">4 active</strong>
-                </div>
-                <div class="dash-card">
-                    <span>Live Mode</span>
-                    <strong id="liveMode">Enabled</strong>
-                </div>
-            </section>
+            <div class="workspace-navigation">
+                <button class="section-btn active" data-section="dashboardSection">Dashboard</button>
+                <button class="section-btn" data-section="studioSection">Studio</button>
+                <button class="section-btn" data-section="samplesSection">Samples</button>
+                <button class="section-btn" data-section="effectsSection">Effects</button>
+                <button class="section-btn" data-section="presetsSection">Presets</button>
+            </div>
 
-            <section class="studio-grid">
-                <div class="panel panel-mixer">
-                    <div class="panel-header">
-                        <h2>Layer Mixer</h2>
-                        <p>Manage track voices, volume and mute for every layer.</p>
-                    </div>
-                    <div id="trackRows" class="track-rows"></div>
-                </div>
-
-                <div class="panel panel-effects">
-                    <div class="panel-header">
-                        <h2>Effects Rack</h2>
-                        <p>Quick control for delay, reverb, filtering and distortion.</p>
-                    </div>
-                    <div class="effect-control">
-                        <label for="delaySlider">Delay</label>
-                        <input type="range" id="delaySlider" min="0" max="0.5" step="0.01" value="0.18">
-                        <span id="delayValue">0.18s</span>
-                    </div>
-                    <div class="effect-control">
-                        <label for="reverbSlider">Reverb</label>
-                        <input type="range" id="reverbSlider" min="0" max="0.65" step="0.01" value="0.22">
-                        <span id="reverbValue">22%</span>
-                    </div>
-                    <div class="effect-control">
-                        <label for="filterSlider">Filter Cutoff</label>
-                        <input type="range" id="filterSlider" min="300" max="8000" step="50" value="1400">
-                        <span id="filterValue">1.4kHz</span>
-                    </div>
-                    <div class="effect-control">
-                        <label for="distortionSlider">Distortion</label>
-                        <input type="range" id="distortionSlider" min="0" max="0.4" step="0.01" value="0.05">
-                        <span id="distortionValue">5%</span>
-                    </div>
-                    <div class="preset-buttons">
-                        <button data-preset="Trap">Trap</button>
-                        <button data-preset="Future Bass">Future Bass</button>
-                        <button data-preset="Lo-Fi">Lo-Fi</button>
-                        <button data-preset="Hybrid">Hybrid</button>
-                    </div>
-                </div>
-            </section>
-
-            <section class="performance-panel">
-                <div class="panel panel-pads">
-                    <div class="panel-header">
-                        <h2>Pads & Voice Layers</h2>
-                        <p>Trigger layered samples and live voices for creative trap arrangements.</p>
-                    </div>
-                    <div class="pad-grid" id="padGrid"></div>
-                    <div class="pad-controls">
-                        <div class="pad-meta">
-                            <span>Selected Voice</span>
-                            <strong id="selectedVoiceLabel">808 Kick</strong>
+            <div class="workspace-content">
+                <section id="dashboardSection" class="tab-section active">
+                    <div class="dashboard-grid">
+                        <div class="dash-card">
+                            <span>Tempo</span>
+                            <strong id="tempoValue">140 BPM</strong>
                         </div>
-                        <button id="toggleMetronomeBtn" class="secondary-btn"><i class="fas fa-bell"></i> Metronome</button>
-                        <button id="randomLayerBtn" class="secondary-btn"><i class="fas fa-random"></i> Random Layer</button>
+                        <div class="dash-card">
+                            <span>Layers</span>
+                            <strong id="layerCount">6</strong>
+                        </div>
+                        <div class="dash-card">
+                            <span>Effects</span>
+                            <strong id="effectCount">4 active</strong>
+                        </div>
+                        <div class="dash-card">
+                            <span>Live Mode</span>
+                            <strong id="liveMode">Enabled</strong>
+                        </div>
                     </div>
-                </div>
+                </section>
 
-                <div class="panel panel-sequencer">
-                    <div class="panel-header">
-                        <h2>16-Step Sequencer</h2>
-                        <p>Draw beats across multiple tracks, then hit play to hear the full arrangement.</p>
+                <section id="studioSection" class="tab-section">
+                    <div class="panel panel-sequencer">
+                        <div class="panel-header">
+                            <h2>Studio Sequencer</h2>
+                            <p>Arrange every layer with square step cells for real beat production.</p>
+                        </div>
+                        <div class="sequencer-controls">
+                            <label>BPM</label>
+                            <input type="number" id="bpmInput" min="70" max="200" value="140">
+                            <button id="playBtn" class="play-control"><i class="fas fa-play"></i> Play</button>
+                            <button id="stopBtn" class="play-control alt"><i class="fas fa-stop"></i> Stop</button>
+                            <button id="clearBtn" class="play-control"><i class="fas fa-trash"></i> Clear</button>
+                        </div>
+                        <div id="trackSequencer" class="track-sequencer"></div>
                     </div>
-                    <div class="sequencer-controls">
-                        <label>BPM</label>
-                        <input type="number" id="bpmInput" min="70" max="200" value="140">
-                        <button id="playBtn" class="play-control"><i class="fas fa-play"></i> Play</button>
-                        <button id="stopBtn" class="play-control alt"><i class="fas fa-stop"></i> Stop</button>
-                        <button id="clearBtn" class="play-control"><i class="fas fa-trash"></i> Clear</button>
-                    </div>
-                    <div id="trackSequencer" class="track-sequencer"></div>
-                </div>
-            </section>
 
-            <section class="library-panel panel">
-                <div class="panel-header">
-                    <h2>Sample Library</h2>
-                    <p>Quick access to trap-ready sounds and producer kits.</p>
-                </div>
-                <div id="sampleLibrary" class="sample-library"></div>
-            </section>
+                    <div class="panel panel-mixer">
+                        <div class="panel-header">
+                            <h2>Mix Master</h2>
+                            <p>Control track volumes, mute, pan, and session-level output.</p>
+                        </div>
+                        <div id="trackRows" class="track-rows"></div>
+                        <div class="mixer-main">
+                            <div class="mixer-control">
+                                <label>Master Volume</label>
+                                <input type="range" id="masterVolumeSlider" min="0" max="1" step="0.01" value="0.92">
+                                <span id="masterVolumeLabel">92%</span>
+                            </div>
+                            <div class="mixer-control">
+                                <label>Master Pan</label>
+                                <input type="range" id="masterPanSlider" min="-1" max="1" step="0.05" value="0">
+                                <span id="masterPanLabel">Center</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="samplesSection" class="tab-section">
+                    <div class="panel panel-samples">
+                        <div class="panel-header">
+                            <h2>Sample Pads</h2>
+                            <p>Trigger layered voices, build hooks, and audition beats live.</p>
+                        </div>
+                        <div class="pad-grid" id="padGrid"></div>
+                        <div class="pad-controls">
+                            <div class="pad-meta">
+                                <span>Selected Voice</span>
+                                <strong id="selectedVoiceLabel">808 Kick</strong>
+                            </div>
+                            <button id="toggleMetronomeBtn" class="secondary-btn"><i class="fas fa-bell"></i> Metronome</button>
+                            <button id="randomLayerBtn" class="secondary-btn"><i class="fas fa-random"></i> Random Layer</button>
+                        </div>
+                    </div>
+                    <div class="panel panel-library">
+                        <div class="panel-header">
+                            <h2>Sample Library</h2>
+                            <p>Load beat kits and session presets to speed up production.</p>
+                        </div>
+                        <div id="sampleLibrary" class="sample-library"></div>
+                    </div>
+                </section>
+
+                <section id="effectsSection" class="tab-section">
+                    <div class="panel panel-effects">
+                        <div class="panel-header">
+                            <h2>Effects Rack</h2>
+                            <p>Shape trap sounds with delay, reverb, filter, distortion, and bus control.</p>
+                        </div>
+                        <div class="effect-control">
+                            <label for="delaySlider">Delay</label>
+                            <input type="range" id="delaySlider" min="0" max="0.5" step="0.01" value="0.18">
+                            <span id="delayValue">0.18s</span>
+                        </div>
+                        <div class="effect-control">
+                            <label for="reverbSlider">Reverb</label>
+                            <input type="range" id="reverbSlider" min="0" max="0.65" step="0.01" value="0.22">
+                            <span id="reverbValue">22%</span>
+                        </div>
+                        <div class="effect-control">
+                            <label for="filterSlider">Filter Cutoff</label>
+                            <input type="range" id="filterSlider" min="300" max="8000" step="50" value="1400">
+                            <span id="filterValue">1.4kHz</span>
+                        </div>
+                        <div class="effect-control">
+                            <label for="distortionSlider">Distortion</label>
+                            <input type="range" id="distortionSlider" min="0" max="0.4" step="0.01" value="0.05">
+                            <span id="distortionValue">5%</span>
+                        </div>
+                        <div class="preset-buttons">
+                            <button data-preset="Trap">Trap</button>
+                            <button data-preset="Future Bass">Future Bass</button>
+                            <button data-preset="Lo-Fi">Lo-Fi</button>
+                            <button data-preset="Hybrid">Hybrid</button>
+                        </div>
+                    </div>
+                    <div class="panel panel-master-bus">
+                        <div class="panel-header">
+                            <h2>Master Bus</h2>
+                            <p>Tune the session output with master send and bus meters.</p>
+                        </div>
+                        <div class="bus-controls">
+                            <div class="bus-item">
+                                <span>Bus Gain</span>
+                                <strong id="busGainLabel">0.92</strong>
+                            </div>
+                            <div class="bus-item">
+                                <span>Wet/Dry</span>
+                                <strong id="busWetDryLabel">22%</strong>
+                            </div>
+                        </div>
+                        <div class="bus-notes">
+                            <p>Keep the master bus balanced when you finalize beats, mix sessions, or record output.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="presetsSection" class="tab-section">
+                    <div class="panel panel-presets">
+                        <div class="panel-header">
+                            <h2>Sessions & Presets</h2>
+                            <p>Save your current session and recall full beat setups later.</p>
+                        </div>
+                        <div class="preset-actions">
+                            <button id="savePresetBtn" class="primary-btn"><i class="fas fa-save"></i> Save Session</button>
+                            <button id="clearSessionBtn" class="secondary-btn"><i class="fas fa-trash"></i> New Session</button>
+                        </div>
+                        <div id="savedSessions" class="saved-sessions"></div>
+                    </div>
+                </section>
+            </div>
         </main>
     </div>
 
